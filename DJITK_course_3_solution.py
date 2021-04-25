@@ -20,6 +20,14 @@ class DJITK_patrols(Tello):
         "wifi?": "wifi?",
     }
 
+    def testDict(self, myCommand):
+        for x in self.commandsDict.keys():
+            if self.commandsDict[x] == myCommand:
+                print x
+            else:
+                print "Parancs nem talalhato!"
+
+
     def doDict(self, myCommand):
 
         oneWord = ["takeoff", "land"]

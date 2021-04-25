@@ -2,6 +2,96 @@ from DJITK import Tello
 
 class DJITK_patrols(Tello):
 
+    commandsDict = {
+        "up": "fel",
+        "down": "le",
+        "left": "balra",
+        "right": "",
+        "forward": "",
+        "back": "",
+        "cw": "",
+        "ccw": "",
+        "flip": "",
+        "takeoff": "",
+        "land": "",
+        "speed?": "",
+        "battery?": "",
+        "time?": "",
+        "wifi?": "",
+    }
+
+    def testDict(self, myCommand):
+        for x in self.commandsDict.keys():
+            if "---":
+                print "---"
+            else:
+                print "Parancs nem talalhato!"
+
+    def doDict(self, myCommand):
+
+        oneWord = ["takeoff", "land"]
+
+        commands = []
+        command = ""
+        value = ""
+        commandOk = False
+
+        if len(myCommand.split()) > 1:
+            commands = myCommand.split()
+            value = commands[1]
+        elif len(myCommand.split()) > 2:
+            print "Ismeretlen parancs, tul sok argumentum!"
+        else:
+            commands = [myCommand]
+
+        for x in self.commandsDict.keys():
+            if self.commandsDict[x] == commands[0]:
+                command = x
+                commandOk = True
+
+        if not commandOk:
+            for x in self.commandsDict.keys():
+                if x == commands[0]:
+                    command = commands[0]
+                    commandOk = True
+
+        if commandOk:
+            if len(commands) > 1:
+                if command in oneWord:
+                    print "[" + command + "] Egy argumentumot var! Kapott: [" + command + " " + value + "]"
+                    return 1
+                else:
+                    return command + " " + value
+            else:
+                if command not in oneWord:
+                    print "[" + command + "] Ket argumentumot var! Vart formatum: [" + command + " 20]"
+                    return 1
+                else:
+                    return command
+        else:
+            print "[" + commands[0] + "] Nem ertelmezheto parancs!"
+            return 1
+
+    def doQueue(self, myQueue):
+
+        commands = []
+
+        if len(myQueue) == 0:
+            print ("Ures parancshalmaz!")
+            exit()
+
+        for command in myQueue:
+            if self.doDict(command) != 1:
+                commands.append(self.doDict(command))
+            else:
+                exit()
+
+        print (">> Parancsok beolvasasa sikeres")
+        print commands
+        print (">> Parancsok vegrehajtasa...")
+
+        for command in commands:
+            self.do(command)
 
     def customPatrol(self, edge):
         self.takeOff()
@@ -67,4 +157,9 @@ class DJITK_patrols(Tello):
         self.land()
 
 
+commandsQueue = ["takeOff", "elore 50", "back 20", "land"]
+
+dron = DJITK_patrols("kurzus3")
+dron.doInit()
+dron.doQueue(commandsQueue)
 
