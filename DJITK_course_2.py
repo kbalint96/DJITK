@@ -111,7 +111,7 @@ class DJITK_patrols(Tello):
         """ EDDIG """
 
 
-# foprogram, peldany letrahozasa, parancso kiadasa
+# foprogram, peldany letrahozasa, parancsok kiadasa
 """ INNENTOL """
 
 """ EDDIG """

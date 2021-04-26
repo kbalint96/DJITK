@@ -1,11 +1,23 @@
 from DJITK import Tello
 
+"""
+        1. feladat - Szotar letrehozasa es tesztelse
+
+        a) commandsDict szotar kiegeszitese
+        b) testDict fuggveny kiegeszitese es tesztelese
+        c) doDict fuggveny vizsgalata
+"""
+
 class DJITK_patrols(Tello):
 
+    # 1) a - commandsDict szotar kiegeszitese
     commandsDict = {
         "up": "fel",
         "down": "le",
         "left": "balra",
+
+        """ INNENTOL """
+
         "right": "",
         "forward": "",
         "back": "",
@@ -17,9 +29,13 @@ class DJITK_patrols(Tello):
         "speed?": "",
         "battery?": "",
         "time?": "",
-        "wifi?": "",
+        "wifi?": ""
+
+        """ EDDIG """
+
     }
 
+    # 1) b/1 - testDict fuggveny kiegeszitse
     def testDict(self, myCommand):
         """
         A fuggveny megvizsgalja, hogy a kapott, ertek nelkuli parancs torzs (fel, le, balra stb)
@@ -29,12 +45,12 @@ class DJITK_patrols(Tello):
         # iteraljunk vegig a szotarunkon. x lesz a kulcsunk
         for x in self.commandsDict.keys():
             # amennyiben a kulcsunk megegyezik a parameterben kapott myCommand-dal, irjuk ki a kulcsot
+            """ INNENTOL """
             if "---":
                 print "---"
-            # egyebkent dobjunk hibat
-            else:
-                print "Parancs nem talalhato!"
+                """ EDDIG """
 
+# 1) c - doDict fuggveny vizsgalata
     def doDict(self, myCommand):
         """
         A fuggveny megvizsgalja, hogy a parameterkent kapott parancs szerepel-e a szotarban, valamint hogy
@@ -119,7 +135,6 @@ class DJITK_patrols(Tello):
             return 1
 
     def doQueue(self, myQueue):
-
         commands = []
 
         if len(myQueue) == 0:
@@ -138,6 +153,20 @@ class DJITK_patrols(Tello):
 
         for command in commands:
             self.do(command)
+
+    def doStack(self, myStack):
+        commands = []
+
+        if len(myStack) == 0:
+            print ("Ures parancshalmaz!")
+            exit()
+
+        for command in range(len(myStack), 0, -1):
+            if self.doDict(myStack[command]) != 1:
+                commands.append(self.doDict(myStack[command]))
+            else:
+                exit()
+
 
     def customPatrol(self, edge):
         self.takeOff()
@@ -203,9 +232,37 @@ class DJITK_patrols(Tello):
         self.land()
 
 
-commandsQueue = ["takeOff", "elore 50", "back 20", "land"]
+DJITKPatrol3 = DJITK_patrols("Course3")
+DJITKPatrol3.doInit()
 
-dron = DJITK_patrols("kurzus3")
-dron.doInit()
-dron.doQueue(commandsQueue)
+# 1) b/1 - testDict() fuggveny tesztelese
+DJITKPatrol3.testDict("...")
 
+"""
+        2. feladat - Queue parancs atadas
+
+        a) Queue segitsegevel L alak bejarasa
+        b) commandsQueue atadasa a doQueue fuggvenynek es
+"""
+
+# 2) a - Queue feltoltese parancsokkal
+commandsQueue = ["felszall", "...", "land"]
+
+# 2) b - doQueue() fuggveny tesztelese a commandsQueue-val
+
+
+"""
+        3. feladat - Stack parancs atadas
+
+        a) Teszt: commandsQueue atadasa a doStack fuggvenynek! Mit tapasztalsz?
+        b) Stack segitsegevel irj egy tetszoleges utasitas sorozatot! Add at a doStack fuggvenynek!
+        c) Vizsgald meg kiirt szenzor adatokat. Mit tapasztalsz?
+"""
+
+# 3) a - doStack() fuggveny tesztelese a commandsQueue-vel
+DJITKPatrol3.doStack(commandsQueue)
+
+# 3) b - Stack segitsegevel tetszolges utasitas sorozat
+DJITKPatrol3.takeOff()
+commandsStack = ["..."]
+DJITKPatrol3.land()

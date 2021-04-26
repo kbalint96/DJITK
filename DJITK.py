@@ -10,6 +10,9 @@ def __str__(self):
 """
 class Tello:
 
+    sensorCommands = ["battery?", "speed?", ""]
+    oneWord = ["takeoff", "land"]
+
     def __init__(self, name):
         self.name = name
 

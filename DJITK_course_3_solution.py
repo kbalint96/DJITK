@@ -1,7 +1,16 @@
 from DJITK import Tello
 
+"""
+        1. feladat - Szotar letrehozasa es tesztelse
+
+        a) commandsDict szotar kiegeszitese
+        b) testDict fuggveny kiegeszitese es tesztelese
+        c) doDict fuggveny vizsgalata
+"""
+
 class DJITK_patrols(Tello):
 
+    # 1) a - commandsDict szotar kiegeszitese
     commandsDict = {
         "up": "fel",
         "down": "le",
@@ -17,9 +26,10 @@ class DJITK_patrols(Tello):
         "speed?": "sebesseg?",
         "battery?": "akkumulator?",
         "time?": "ido?",
-        "wifi?": "wifi?",
+        "wifi?": "wifi?"
     }
 
+    # 1) b/1 - testDict fuggveny kiegeszitse
     def testDict(self, myCommand):
         """
         A fuggveny megvizsgalja, hogy a kapott, ertek nelkuli parancs torzs (fel, le, balra stb)
@@ -29,9 +39,8 @@ class DJITK_patrols(Tello):
         for x in self.commandsDict.keys():
             if self.commandsDict[x] == myCommand:
                 print x
-            else:
-                print "Parancs nem talalhato!"
 
+    # 1) c - doDict fuggveny vizsgalata
     def doDict(self, myCommand):
         """
         A fuggveny megvizsgalja, hogy a parameterkent kapott parancs szerepel-e a szotarban, valamint hogy
@@ -44,8 +53,6 @@ class DJITK_patrols(Tello):
         """
 
         """ Fuggvenyben hasznald valtozok inicializalasa"""
-        # ebben a listaban taroljuk az egyszavas parancsokat
-        oneWord = ["takeoff", "land"]
         # lista, amelybe szetszedjuk a ket parameteres parancsokat (command + value)
         commands = []
         # a Tello szamara kuldott parancs
@@ -95,7 +102,7 @@ class DJITK_patrols(Tello):
             # es a parancs tobb, mint egy reszbol all
             if len(commands) > 1:
                 # de a parancs szerepel az egy reszes parancsok kozt, hibat dobunk es return 1
-                if command in oneWord:
+                if command in self.oneWord:
                     print "[" + command + "] Egy argumentumot var! Kapott: [" + command + " " + value + "]"
                     return 1
                 # ha nincs benne, visszaadjuk a forditott parancsot es az erteket (pl. forward 10)
@@ -104,7 +111,7 @@ class DJITK_patrols(Tello):
             # ha a parancs egy reszbol all
             else:
                 # de a parancs nem szerepel az egy reszes parancsok kozt, hibat dobunk es return 1
-                if command not in oneWord:
+                if command not in self.oneWord:
                     print "[" + command + "] Ket argumentumot var! Vart formatum: [" + command + " 20]"
                     return 1
                 # ha benne van, visszadjuk a forditott parancsot (pl. takeoff)
@@ -116,7 +123,6 @@ class DJITK_patrols(Tello):
             return 1
 
     def doQueue(self, myQueue):
-
         commands = []
 
         if len(myQueue) == 0:
@@ -135,6 +141,19 @@ class DJITK_patrols(Tello):
 
         for command in commands:
             self.do(command)
+
+    def doStack(self, myStack):
+        commands = []
+
+        if len(myStack) == 0:
+            print ("Ures parancshalmaz!")
+            exit()
+
+        for command in range(len(myStack), 0, -1):
+            if self.doDict(myStack[command]) != 1:
+                commands.append(self.doDict(myStack[command]))
+            else:
+                exit()
 
     def customPatrol(self, edge):
         self.takeOff()
@@ -200,9 +219,50 @@ class DJITK_patrols(Tello):
         self.land()
 
 
-commandsQueue = ["takeOff", "elore 50", "back 20", "land"]
+DJITKPatrol3 = DJITK_patrols("Course3")
+DJITKPatrol3.doInit()
 
-dron = DJITK_patrols("kurzus3")
-dron.doInit()
-dron.doQueue(commandsQueue)
+# 1) b/1 - testDict() fuggveny tesztelese
+DJITKPatrol3.testDict("felszall")
+DJITKPatrol3.testDict("felszall 30")
+DJITKPatrol3.testDict("elore")
+DJITKPatrol3.testDict("elore 50")
+DJITKPatrol3.testDict("ismeretlen")
+
+"""
+        2. feladat - Queue parancs atadas
+
+        a) Queue segitsegevel L alak bejarasa
+        b) commandsQueue atadasa a doQueue fuggvenynek es
+"""
+
+# 2) a - Queue feltoltese parancsokkal
+commandsQueue = ["felszall", "elore 100", "balrafordul 90", "elore 20",
+                 "balrafordul 90", "elore 70", "jobbrafordul 90", "elore 40",
+                 "balrafordul 90", "elore 30", "balrafordul 90", "elore 70", "balrafordul 90", "land"]
+
+# 2) b - doQueue() fuggveny tesztelese a commandsQueue-val
+DJITKPatrol3.doQueue(commandsQueue)
+
+"""
+        3. feladat - Stack parancs atadas
+
+        a) Teszt: commandsQueue atadasa a doStack fuggvenynek! Mit tapasztalsz?
+        b) Stack segitsegevel irj egy tetszoleges utasitas sorozatot! Add at a doStack fuggvenynek!
+        c) Vizsgald meg kiirt szenzor adatokat. Mit tapasztalsz?
+"""
+
+# 3) a - doStack() fuggveny tesztelese a commandsQueue-vel
+DJITKPatrol3.doStack(commandsQueue)
+
+# 3) b - Stack segitsegevel tetszolges utasitas sorozat
+# L alak bejarasa visszafele
+DJITKPatrol3.takeOff()
+commandsStack = ["battery?", "elore 100", "battery?", "jobbrafordul 90", "battery?",
+                 "elore 20", "battery?", "jobbrafordul 90", "battery?", "elore 70", "battery?",
+                 "balrafordul 90", "battery?", "elore 40", "battery?", "jobbrafordul 90", "battery?",
+                 "elore 30", "battery?", "jobbrafordul 90", "battery?", "elore 70", "battery?",
+                 "jobbrafordul 90", "battery?"]
+DJITKPatrol3.land()
+
 
