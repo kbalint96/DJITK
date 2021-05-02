@@ -4,14 +4,28 @@ import time
 from datetime import datetime
 
 
-"""
-def __str__(self):
-        return self.firstName + " " + self.lastName
-"""
 class Tello:
 
     sensorCommands = ["battery?", "speed?", ""]
     oneWord = ["takeoff", "land"]
+
+    telloDict = {
+        "up": "fel",
+        "down": "le",
+        "left": "balra",
+        "right": "jobbra",
+        "forward": "elore",
+        "back": "hatra",
+        "cw": "balrafordul",
+        "ccw": "jobbrafordul",
+        "flip": "pordul",
+        "takeoff": "felszall",
+        "land": "leszall",
+        "speed?": "sebesseg?",
+        "battery?": "akkumulator?",
+        "time?": "ido?",
+        "wifi?": "wifi?"
+    }
 
     def __init__(self, name):
         self.name = name
@@ -147,6 +161,83 @@ class Tello:
     def setSpeed(self, speed):
         self.do("speed " + str(speed))
 
+
+    def processDict(self, myCommand):
+
+        oneWord = ["takeoff", "land"]
+        commands = []
+        command = ""
+        value = ""
+        commandOk = False
+
+        if len(myCommand.split()) > 1:
+            commands = myCommand.split()
+            value = commands[1]
+        elif len(myCommand.split()) > 2:
+            print "Ismeretlen parancs, tul sok argumentum!"
+        else:
+            commands = [myCommand]
+
+        for x in self.telloDict.keys():
+            if self.telloDict[x] == commands[0]:
+                command = x
+                commandOk = True
+
+        if not commandOk:
+            for x in self.telloDict.keys():
+                if x == commands[0]:
+                    command = commands[0]
+                    commandOk = True
+
+        if commandOk:
+            if len(commands) > 1:
+                if command in oneWord:
+                    print "[" + command + "] Egy argumentumot var! Kapott: [" + command + " " + value + "]"
+                    return 1
+                else:
+                    return command + " " + value
+            else:
+                if command not in oneWord:
+                    print "[" + command + "] Ket argumentumot var! Vart formatum: [" + command + " 20]"
+                    return 1
+                else:
+                    return command
+        else:
+            print "[" + commands[0] + "] Nem ertelmezheto parancs!"
+            return 1
+
+    def processQueue(self, myQueue):
+        commands = []
+
+        if len(myQueue) == 0:
+            print ("Ures parancshalmaz!")
+            exit()
+
+        for command in myQueue:
+           if self.processDict(command) != 1:
+               commands.append(self.processDict(command))
+           else:
+               exit()
+
+        print (">> Parancsok beolvasasa sikeres")
+        print commands
+        print (">> Parancsok vegrehajtasa...")
+
+        for command in commands:
+            self.do(command)
+
+    def doStack(self, myStack):
+        commands = []
+
+        if len(myStack) == 0:
+            print ("Ures parancshalmaz!")
+            exit()
+
+        for command in range(len(myStack), 0, -1):
+            if self.processDict(myStack[command]) != 1:
+                commands.append(self.processDict(myStack[command]))
+            else:
+                exit()
 class Stats:
     def __init__(self, command, id):
         self.command = command
