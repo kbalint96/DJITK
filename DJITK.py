@@ -9,6 +9,8 @@ class Tello:
     sensorCommands = ["battery?", "speed?", ""]
     oneWord = ["takeoff", "land"]
 
+    response = ""
+
     telloDict = {
         "up": "fel",
         "down": "le",
@@ -29,25 +31,22 @@ class Tello:
 
     def __init__(self, name):
         self.name = name
+        self.response = "No response yet"
 
     def doInit(self):
 
-        self.response = "No response yet"
+        self.tello_address = ('192.168.10.1', 8889)
 
-        self.local_ip = ''
-        self.local_port = 8889
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.socket.bind((self.local_ip, self.local_port))
+        self.socket.bind(('', 8889))
 
         self.receive_thread = threading.Thread(target=self._receive_thread)
         self.receive_thread.daemon = True
         self.receive_thread.start()
 
-        self.tello_ip = '192.168.10.1'
-        self.tello_port = 8889
-        self.tello_adderss = (self.tello_ip, self.tello_port)
         self.log = []
         self.MAX_TIME_OUT = 10
+
         print (">> Name:    " + self.name)
         self.do("command")
         if (self.response == "No response yet"):
@@ -59,13 +58,12 @@ class Tello:
     def do(self, command):
         self.log.append(Stats(command, len(self.log)))
 
-        self.socket.sendto(command.encode('utf-8'), self.tello_adderss)
+        self.socket.sendto(command.encode('utf-8'), self.tello_address)
         #print "Command '" + command + "' is being processed by " + self.name
 
         start = time.time()
         while not self.log[-1].got_response():
-            now = time.time()
-            diff = now - start
+            diff = time.time() - start
             if diff > self.MAX_TIME_OUT:
                 print 'Max timeout exceeded... command %s' % command
                 return
@@ -164,17 +162,18 @@ class Tello:
 
     def processDict(self, myCommand):
 
-        oneWord = ["takeoff", "land"]
+        oneWord = ["takeoff", "land", "speed?", "battery?", "wifi?", "time?"]
         commands = []
         command = ""
         value = ""
         commandOk = False
 
-        if len(myCommand.split()) > 1:
+        if len(myCommand.split()) == 2:
             commands = myCommand.split()
             value = commands[1]
         elif len(myCommand.split()) > 2:
             print "Ismeretlen parancs, tul sok argumentum!"
+            return 1
         else:
             commands = [myCommand]
 
@@ -190,7 +189,7 @@ class Tello:
                     commandOk = True
 
         if commandOk:
-            if len(commands) > 1:
+            if len(commands) == 2:
                 if command in oneWord:
                     print "[" + command + "] Egy argumentumot var! Kapott: [" + command + " " + value + "]"
                     return 1
@@ -226,7 +225,7 @@ class Tello:
         for command in commands:
             self.do(command)
 
-    def doStack(self, myStack):
+    def processStack(self, myStack):
         commands = []
 
         if len(myStack) == 0:
@@ -238,6 +237,9 @@ class Tello:
                 commands.append(self.processDict(myStack[command]))
             else:
                 exit()
+        for command in commands:
+            self.do(command)
+
 class Stats:
     def __init__(self, command, id):
         self.command = command
@@ -252,7 +254,6 @@ class Stats:
         self.response = response
         self.end_time = datetime.now()
         self.duration = self.get_duration()
-        #self.print_stats()
 
     def get_duration(self):
         diff = self.end_time - self.start_time

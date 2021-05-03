@@ -154,6 +154,8 @@ class DJITK_patrols(Tello):
                 commands.append(self.doDict(myStack[command]))
             else:
                 exit()
+        for command in commands:
+            self.do(command)
 
     def customPatrol(self, edge):
         self.takeOff()
