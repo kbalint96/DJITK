@@ -42,18 +42,6 @@ class DJITK_patrols(Tello):
             self.rotate("left", 90)
         self.land()
 
-    def spiral(self, height, radius):
-        # @TODO, ha van ertelme - spriralt jar be felfele
-        pass
-
-    def eighty(self):
-        # @TODO, ha van ertelme - nyolcast jar be
-        pass
-
-    def formL(self):
-        # @TODO, ha van ertelme - L alakot jar be
-        pass
-
     def backAndForth(self, length):
         self.takeOff()
         self.move("forward", length)
