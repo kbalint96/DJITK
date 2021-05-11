@@ -78,11 +78,11 @@ class DJITK_patrols(Tello):
 
         """ Kapott parancs keresese a szotarunkban """
         # nezzuk meg, hogy az ertek (pl. elore ..., balra ...) megtalalhato-e a szotartban
-        # ha igen, a command valtozoba mentsuk el a szotarunk kulcsat (SDK parancsot),
+        # ha igen, a command valtozoba mentsuk el a szotarunk erteket (SDK parancsot),
         # es nyugtazzuk a parancsunk szabalyossagat a commandOk valtozo allitasaval
         for x in self.commandsDict.keys():
-            if self.commandsDict[x] == commands[0]:
-                command = x
+            if x == commands[0]:
+                command = commands[0]
                 commandOk = True
 
         # elofordulhat azonban, hogy paramterkent mar az eredeti SDK parancsot kapjuk meg, igy
@@ -92,19 +92,19 @@ class DJITK_patrols(Tello):
         # es nyugtazzuk a parancsunk szabalyossagat a commandOk valtozo allitasaval
         if not commandOk:
             for x in self.commandsDict.keys():
-                if x == commands[0]:
-                    command = commands[0]
+                if self.commandsDict[x] == commands[0]:
+                    command = x
                     commandOk = True
 
         """ SDK parancs ellenorzese """
         # ha sikerult a parancs leforditasa
         if commandOk:
             # es a parancs tobb, mint egy reszbol all
-            if len(commands) > 1:
+            if len(commands) == 2:
                 # de a parancs szerepel az egy reszes parancsok kozt, hibat dobunk es return 1
                 if command in self.oneWord:
                     print "[" + command + "] Egy argumentumot var! Kapott: [" + command + " " + value + "]"
-                    return 1
+                    return -1
                 # ha nincs benne, visszaadjuk a forditott parancsot es az erteket (pl. forward 10)
                 else:
                     return command + " " + value
@@ -113,14 +113,14 @@ class DJITK_patrols(Tello):
                 # de a parancs nem szerepel az egy reszes parancsok kozt, hibat dobunk es return 1
                 if command not in self.oneWord:
                     print "[" + command + "] Ket argumentumot var! Vart formatum: [" + command + " 20]"
-                    return 1
+                    return -1
                 # ha benne van, visszadjuk a forditott parancsot (pl. takeoff)
                 else:
                     return command
         # amennyiben nem sikeult parancsot forditani, hibat dobunk es return 1
         else:
             print "[" + commands[0] + "] Nem ertelmezheto parancs!"
-            return 1
+            return -1
 
     def doQueue(self, myQueue):
         commands = []

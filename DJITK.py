@@ -178,32 +178,32 @@ class Tello:
             commands = [myCommand]
 
         for x in self.telloDict.keys():
-            if self.telloDict[x] == commands[0]:
-                command = x
+            if x == commands[0]:
+                command = commands[0]
                 commandOk = True
 
         if not commandOk:
             for x in self.telloDict.keys():
-                if x == commands[0]:
-                    command = commands[0]
+                if self.telloDict[x] == commands[0]:
+                    command = x
                     commandOk = True
 
         if commandOk:
             if len(commands) == 2:
                 if command in oneWord:
                     print "[" + command + "] Egy argumentumot var! Kapott: [" + command + " " + value + "]"
-                    return 1
+                    return -1
                 else:
                     return command + " " + value
             else:
                 if command not in oneWord:
                     print "[" + command + "] Ket argumentumot var! Vart formatum: [" + command + " 20]"
-                    return 1
+                    return -1
                 else:
                     return command
         else:
             print "[" + commands[0] + "] Nem ertelmezheto parancs!"
-            return 1
+            return -1
 
     def processQueue(self, myQueue):
         commands = []
